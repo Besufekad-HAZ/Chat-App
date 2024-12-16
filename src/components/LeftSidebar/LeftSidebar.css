@@ -37,3 +37,11 @@
   width: 16px;
   opacity: 0.6;
 }
+
+.ls-search input {
+  border: none;
+  outline: none;
+  font-size: 11px;
+  background: transparent;
+  color: white;
+}
