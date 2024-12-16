@@ -37,10 +37,17 @@ const Login = () => {
           <p>Accept terms of use and privacy policy</p>
         </div>
         <div className="login-forgot">
-          <p className="login-toogle">
-            Already have an account{" "}
-            <span onClick={() => setCurrState("Login")}>click here</span>
-          </p>
+          {currState === "Sign up" ? (
+            <p className="login-toogle">
+              Already have an account
+              <span onClick={() => setCurrState("Login")}> Login here</span>
+            </p>
+          ) : (
+            <p className="login-toogle">
+              Create an account
+              <span onClick={() => setCurrState("Sign up")}> click here</span>
+            </p>
+          )}
         </div>
       </form>
     </div>
