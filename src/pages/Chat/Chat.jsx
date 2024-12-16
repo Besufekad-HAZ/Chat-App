@@ -1,8 +1,11 @@
 import "./Chat.css";
 
 const Chat = () => {
-  return <div>
-    Your are on the Chat Page</div>;
+  return <div className="chat">
+    <div className="chat-container">
+      
+    </div>
+   </div>;
 };
 
 export default Chat;
