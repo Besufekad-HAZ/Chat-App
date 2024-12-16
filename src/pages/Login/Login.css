@@ -1,0 +1,8 @@
+.login {
+  min-height: 100vh;
+  background: url(/et_background.png) no-repeat;
+  background-size: cover;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
