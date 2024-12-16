@@ -34,7 +34,7 @@ const ChatBox = () => {
             Lorem ipsum dolor sit amet consectetur adipisigh ..
           </p>
           <div>
-            <img src={assets.profile_img} alt="" />
+            <img src={assets.profile_aman} alt="" />
             <p>2:30 PM</p>
           </div>
         </div>
