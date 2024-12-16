@@ -1,6 +1,6 @@
 import "./Login.css";
 const Login = () => {
-  return <div>Login</div>;
+  return <div> You are on the Login Page</div>;
 };
 
 export default Login;
