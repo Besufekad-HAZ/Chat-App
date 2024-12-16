@@ -12,7 +12,7 @@ const ChatBox = () => {
         <img src={assets.help_icon} className="help" alt="" />
       </div>
 
-      <div className="chat-message">
+      <div className="chat-msg">
         <div className="s-msg">
           <p className="msg">
             Lorem ipsum dolor sit amet consectetur adipisicing
