@@ -5,7 +5,7 @@ const RightSidebar = () => {
   return (
     <div className="rs">
       <div className="rs-profile">
-        <img src={assets.profile_aman} width="99.9%" alt="" />
+        <img src={assets.profile_aman} alt="" />
         <h3>
           Aman Versatile <img src={assets.green_dot} alt="" className="dot" />
         </h3>
@@ -23,6 +23,7 @@ const RightSidebar = () => {
           <img src={assets.pic2} alt="" />
         </div>
       </div>
+      <button>Logout</button>
     </div>
   );
 };
