@@ -7,7 +7,7 @@ const ProfileUpdate = () => {
       <div className="profile-container">
         <form action="">
           <h3>Profile Details</h3>
-          <label htmlFor="name">
+          <label htmlFor="avatar">
             <input type="file" id="avatar" accept="image/*" hidden />
             <img src={assets.avatar_icon} alt="" />
             Upload profile image
@@ -16,7 +16,7 @@ const ProfileUpdate = () => {
           <textarea placeholder="Write profile bio" required></textarea>
           <button type="submit">Save</button>
         </form>
-        <img src={assets.logo_icon} alt="" />
+        <img className="profile-pic" src={assets.logo_icon} alt="" />
       </div>
     </div>
   );
