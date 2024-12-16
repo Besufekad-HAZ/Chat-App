@@ -98,11 +98,15 @@
 }
 
 .menu .sub-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
   width: 130px;
   padding: 20px;
   background-color: white;
   border-radius: 5px;
   color: black;
+  display: none;
 }
 
 .sub-menu hr {
