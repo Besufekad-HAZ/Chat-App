@@ -1,6 +1,7 @@
 import "./Login.css";
 import assets from "../../assets/assets";
 import { useState } from "react";
+import { signup } from "../../config/firebase";
 const Login = () => {
   const [currState, setCurrState] = useState("Sign up");
 
