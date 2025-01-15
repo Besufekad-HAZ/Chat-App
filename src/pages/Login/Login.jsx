@@ -8,10 +8,17 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (currState === "Sign up") {
+      signup(userName, email, password);
+    }
+  };
+
   return (
     <div className="login">
       <img src={assets.logo_big} alt="Login logo image" className="logo" />
-      <form className="login-form">
+      <form onSubmit={handleSubmit} className="login-form">
         <h2>{currState}</h2>
         {currState === "Sign up" ? (
           <input
