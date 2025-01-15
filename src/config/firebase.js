@@ -1,9 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics"; // analytics for later
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";// for authentication
-import { getFirestore } from "firebase/firestore";
-
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"; // for authentication
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCJEqs42m72zip37y90JMMAA5y6z-mLiV4",
@@ -22,18 +21,25 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-
 // create signup method
-const signup = (async (username, email, password) => {
-    try {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-        const user = res.user;
-        await updateProfile(user, {
-            displayName: username,
-        });
-    } catch (err) {
-        console.error(err);
-        alert(err.message);
-    }
-
-})
+const signup = async (username, email, password) => {
+  try {
+    const res = await createUserWithEmailAndPassword(auth, email, password);
+    const user = res.user;
+    await setDoc(doc(db, "users", user.uid), {
+      id: user.uid,
+      username: username.toLowerCase(),
+      email,
+      name: "",
+      avatar: "",
+      bio: "Hey There, I am using Ethio-Chat App",
+      lastSeen: Date.now(),
+    });
+    await setDoc(doc(db, "chats", user.uid), {
+      chatData: [],
+    });
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
