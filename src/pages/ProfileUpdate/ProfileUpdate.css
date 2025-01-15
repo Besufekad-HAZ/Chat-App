@@ -48,7 +48,8 @@
   border-radius: 50%;
 }
 
-.profile input,textarea {
+.profile input,
+textarea {
   padding: 10px;
   min-width: 300px;
   border: 1px solid #c9c9c9;
@@ -58,7 +59,7 @@
 }
 
 .profile form button {
-  padding: 10px;
+  padding: 8px;
   border: none;
   background-color: #077011;
   color: white;
