@@ -11,6 +11,10 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (currState === "Sign up") {
@@ -18,14 +22,16 @@ const Login = () => {
         await signup(userName, email, password);
         toast.success("Account created successfully");
       } catch (err) {
-        toast.error(err.message);
+        const errorMessage = err.code.split("/")[1].split("-").join(" ");
+        toast.error(capitalizeFirstLetter(errorMessage));
       }
     } else {
       try {
         await login(email, password);
         toast.success("Logged in successfully");
       } catch (err) {
-        toast.error(err.message);
+        const errorMessage = err.code.split("/")[1].split("-").join(" ");
+        toast.error(capitalizeFirstLetter(errorMessage));
       }
     }
   };
