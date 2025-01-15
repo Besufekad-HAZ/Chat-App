@@ -5,18 +5,20 @@ import ProfileUpdate from "./pages/ProfileUpdate/ProfileUpdate";
 // eslint-disable-next-line no-unused-vars
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase";
+import { AppContext } from "./context/AppContext";
 
 const App = () => {
   const navigate = useNavigate();
+  const { loadUserData } = useContext(AppContext);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         navigate("/chat");
-        console.log(user);
+        await loadUserData(user.uid);
       } else {
         navigate("/");
       }
