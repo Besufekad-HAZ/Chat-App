@@ -42,7 +42,7 @@ const signup = async (username, email, password) => {
     });
   } catch (err) {
     console.error(err);
-    toast.error(err.code);
+    throw err;
   }
 };
 

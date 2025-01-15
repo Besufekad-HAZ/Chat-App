@@ -2,21 +2,30 @@ import "./Login.css";
 import assets from "../../assets/assets";
 import { useState } from "react";
 import { signup } from "../../config/firebase";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Login = () => {
   const [currState, setCurrState] = useState("Sign up");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (currState === "Sign up") {
-      signup(userName, email, password);
+      try {
+        await signup(userName, email, password);
+        toast.success("Account created successfully");
+      } catch (err) {
+        toast.error(err.message);
+      }
     }
   };
 
   return (
     <div className="login">
+      <ToastContainer />
       <img src={assets.logo_big} alt="Login logo image" className="logo" />
       <form onSubmit={handleSubmit} className="login-form">
         <h2>{currState}</h2>
