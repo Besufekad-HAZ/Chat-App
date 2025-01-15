@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics"; // analytics for later
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"; // for authentication
 import { doc, getFirestore, setDoc } from "firebase/firestore";
+// use react toastify after importing it
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCJEqs42m72zip37y90JMMAA5y6z-mLiV4",
