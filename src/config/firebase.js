@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth"; // for authentication
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 // import { toast } from "react-toastify";
@@ -60,4 +61,14 @@ const login = async (email, password) => {
   }
 };
 
-export { signup, login };
+// create logout method
+const logout = async () => {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+export { signup, login, logout };
