@@ -1,6 +1,7 @@
 import { createContext, useState } from "react";
 import PropTypes from "prop-types";
 import { doc, getDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 export const AppContext = createContext();
 
