@@ -3,8 +3,8 @@ import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics"; // analytics for later
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth"; // for authentication
 import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 // use react toastify after importing it
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyCJEqs42m72zip37y90JMMAA5y6z-mLiV4",
@@ -42,6 +42,8 @@ const signup = async (username, email, password) => {
     });
   } catch (err) {
     console.error(err);
-    alert(err.message);
+    toast.error(err.code);
   }
 };
+
+export { signup };
