@@ -47,3 +47,14 @@
   aspect-ratio: 1/1;
   border-radius: 50%;
 }
+
+.profile input,textarea {
+  padding: 10px;
+  min-width: 300px;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+  font-size: 14px;
+  outline-color: #077011;
+}
+
+

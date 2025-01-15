@@ -29,14 +29,14 @@
   padding: 8px 10px;
   border: 1px solid #c9c9c9;
   border-radius: 4px;
-  outline-color: #077eff;
+  outline-color: #077011;
 }
 
 .login-form button {
   padding: 10px;
   border: none;
   border-radius: 4px;
-  background: #077eff;
+  background: #077011;
   color: white;
   cursor: pointer;
   font-size: 16px;
@@ -63,6 +63,6 @@
 
 .login-toogle span {
   font-weight: 500;
-  color: #077eff;
+  color: #077011;
   cursor: pointer;
 }
