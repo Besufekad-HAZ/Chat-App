@@ -1,7 +1,7 @@
 import "./Login.css";
 import assets from "../../assets/assets";
 import { useState } from "react";
-import { signup } from "../../config/firebase";
+import { signup, login } from "../../config/firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -17,6 +17,13 @@ const Login = () => {
       try {
         await signup(userName, email, password);
         toast.success("Account created successfully");
+      } catch (err) {
+        toast.error(err.message);
+      }
+    } else {
+      try {
+        await login(email, password);
+        toast.success("Logged in successfully");
       } catch (err) {
         toast.error(err.message);
       }
