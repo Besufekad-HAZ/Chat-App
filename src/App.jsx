@@ -16,6 +16,7 @@ const App = () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         navigate("/chat");
+        console.log(user);
       } else {
         navigate("/");
       }
@@ -23,7 +24,7 @@ const App = () => {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
 
   return (
     <>
