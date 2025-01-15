@@ -1,12 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // import { getAnalytics } from "firebase/analytics"; // analytics for later
-import { getAuth } from "firebase/auth";// for authentication
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";// for authentication
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseConfig = {
   apiKey: "AIzaSyCJEqs42m72zip37y90JMMAA5y6z-mLiV4",
   authDomain: "ethio-chat-app-efc96.firebaseapp.com",
@@ -22,3 +20,20 @@ const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app); analytics for later
 
 const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+// create signup method
+const signup = (async (username, email, password) => {
+    try {
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        const user = res.user;
+        await updateProfile(user, {
+            displayName: username,
+        });
+    } catch (err) {
+        console.error(err);
+        alert(err.message);
+    }
+
+})
