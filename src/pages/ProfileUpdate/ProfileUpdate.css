@@ -57,4 +57,11 @@
   outline-color: #077011;
 }
 
-
+.profile form button {
+  padding: 10px;
+  border: none;
+  background-color: #077011;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
