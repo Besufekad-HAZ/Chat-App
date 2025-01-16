@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import assets from "../../assets/assets";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../config/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import upload from "../../lib/upload";
 
 const ProfileUpdate = () => {
   const navigate = useNavigate();
@@ -13,6 +14,20 @@ const ProfileUpdate = () => {
   const [bio, setBio] = useState("");
   const [uid, setUid] = useState("");
   const [prevImage, setPrevImage] = useState("");
+
+  const profileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await updateDoc(doc(db, "users", uid), {
+        name,
+        bio,
+        avatar: image ? await upload(image) : prevImage,
+      });
+      navigate("/profile");
+    } catch (err) {
+      console.error(err);
+    }
+  }; // update profile
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -39,7 +54,7 @@ const ProfileUpdate = () => {
   return (
     <div className="profile">
       <div className="profile-container">
-        <form action="">
+        <form onSubmit={profileUpdate}>
           <h3>Profile Details</h3>
           <label htmlFor="avatar">
             <input
