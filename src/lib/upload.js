@@ -11,6 +11,7 @@ const upload = async (file) => {
 
   const uploadTask = uploadBytesResumable(storageRef, file);
 
+  // eslint-disable-next-line no-unused-vars
   return new Promise((resolve, reject) => {
     uploadTask.on(
       "state_changed",
