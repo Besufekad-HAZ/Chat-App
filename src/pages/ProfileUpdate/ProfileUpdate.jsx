@@ -6,6 +6,7 @@ import { auth, db } from "../../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import upload from "../../lib/upload";
+import { toast } from "react-toastify";
 
 const ProfileUpdate = () => {
   const navigate = useNavigate();
@@ -18,12 +19,26 @@ const ProfileUpdate = () => {
   const profileUpdate = async (e) => {
     e.preventDefault();
     try {
-      await updateDoc(doc(db, "users", uid), {
-        name,
-        bio,
-        avatar: image ? await upload(image) : prevImage,
-      });
-      navigate("/profile");
+      if (!prevImage && !image) {
+        toast.error("Please Upload profile picture");
+      }
+      const docRef = doc(db, "users", uid);
+      if (image) {
+        const imgUrl = await upload(image);
+        console.log(imgUrl);
+        setPrevImage(imgUrl);
+        await updateDoc(docRef, {
+          avatar: imgUrl,
+          name: name,
+          bio: bio,
+        });
+        toast.success("Profile updated successfully");
+      } else {
+        await updateDoc(docRef, {
+          name,
+          bio,
+        });
+      }
     } catch (err) {
       console.error(err);
     }
@@ -79,7 +94,7 @@ const ProfileUpdate = () => {
             required
           />
           <textarea
-            onChange={(e) => setBio(e.target.bio)}
+            onChange={(e) => setBio(e.target.value)}
             value={bio}
             placeholder="Write profile bio"
             required
