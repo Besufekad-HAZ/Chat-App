@@ -7,7 +7,7 @@ import {
 
 const upload = async (file) => {
   const storage = getStorage();
-  const storageRef = ref(storage, "images/rivers.jpg");
+  const storageRef = ref(storage, `images/&{Date.now() + file.name}`);
 
   const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -25,10 +25,12 @@ const upload = async (file) => {
           break;
       }
     },
-    (error) => {},
+    (error) => {
+      console.log(error);
+    },
     () => {
       getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-        console.log("File available at", downloadURL);
+        resolve(downloadURL);
       });
     }
   );
