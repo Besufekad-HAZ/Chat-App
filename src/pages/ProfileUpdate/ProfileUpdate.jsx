@@ -4,6 +4,9 @@ import assets from "../../assets/assets";
 
 const ProfileUpdate = () => {
   const [image, setImage] = useState(false);
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+
   return (
     <div className="profile">
       <div className="profile-container">
@@ -23,8 +26,20 @@ const ProfileUpdate = () => {
             />
             Upload profile image
           </label>
-          <input type="text" id="name" placeholder="Your name" required />
-          <textarea placeholder="Write profile bio" required></textarea>
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            type="text"
+            id="name"
+            placeholder="Your name"
+            required
+          />
+          <textarea
+            onChange={(e) => setBio(e.target.value)}
+            value={bio}
+            placeholder="Write profile bio"
+            required
+          ></textarea>
           <button type="submit">Save</button>
         </form>
         <img
