@@ -1,9 +1,24 @@
 import "./LeftSidebar.css";
 import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
+
+  const inputHandler = async (e) => {
+    try {
+      const input = e.target.value;
+      const userRef = collection(db, "users");
+      const q = query(userRef, where("username", "==", input.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        console.log(doc.id, " => ", doc.data());
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="ls">
@@ -21,7 +36,11 @@ const LeftSidebar = () => {
         </div>
         <div className="ls-search">
           <img src={assets.search_icon} alt="" />
-          <input type="text" placeholder="Search here.." />
+          <input
+            onChange={inputHandler}
+            type="text"
+            placeholder="Search here.."
+          />
         </div>
       </div>
       <div className="ls-list">
