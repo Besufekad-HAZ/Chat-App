@@ -124,3 +124,8 @@
 .menu:hover .sub-menu {
   display: block;
 }
+
+.menu .sub-menu p:hover {
+  color: #57ee51;
+  font-size: medium;
+}
