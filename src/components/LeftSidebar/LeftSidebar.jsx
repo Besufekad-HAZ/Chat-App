@@ -57,17 +57,26 @@ const LeftSidebar = () => {
         </div>
       </div>
       <div className="ls-list">
-        {Array(12)
-          .fill("")
-          .map((item, index) => (
-            <div key={index} className="friends">
-              <img src={assets.profile_img} alt="" />
-              <div>
-                <p> Richard Sanford</p>
-                <span>Hello, how are you?</span>
-              </div>
+        {showSearch && user ? (
+          <div className="friends add-user">
+            <img src={user.avatar} alt="User Avatar" />
+            <div>
+              <p>{user.name}</p>
             </div>
-          ))}
+          </div>
+        ) : (
+          Array(12)
+            .fill("")
+            .map((item, index) => (
+              <div key={index} className="friends">
+                <img src={assets.profile_img} alt="" />
+                <div>
+                  <p> Richard Sanford</p>
+                  <span>Hello, how are you?</span>
+                </div>
+              </div>
+            ))
+        )}
       </div>
     </div>
   );
