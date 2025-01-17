@@ -1,7 +1,17 @@
 import "./LeftSidebar.css";
 import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  setDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
@@ -33,6 +43,40 @@ const LeftSidebar = () => {
     }
   };
 
+  const addChat = async () => {
+    const messagesRef = collection(db, "messages");
+    const chatRef = collection(db, "chats");
+    try {
+      const newMessageRef = doc(messagesRef);
+      await setDoc(newMessageRef, {
+        createAt: serverTimestamp(),
+        message: [],
+      });
+
+      await updateDoc(doc(chatRef, user.id), {
+        chatData: arrayUnion({
+          messageId: newMessageRef.id,
+          lastMessage: "",
+          rId: userData.id,
+          updateAt: Date.now(),
+          messageSeen: true,
+        }),
+      });
+
+      await updateDoc(doc(chatRef, userData.id), {
+        chatData: arrayUnion({
+          messageId: newMessageRef.id,
+          lastMessage: "",
+          rId: user.id,
+          updateAt: Date.now(),
+          messageSeen: true,
+        }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="ls">
       <div className="ls-top">
@@ -58,7 +102,7 @@ const LeftSidebar = () => {
       </div>
       <div className="ls-list">
         {showSearch && user ? (
-          <div className="friends add-user">
+          <div onClick={addChat} className="friends add-user">
             <img src={user.avatar} alt="User Avatar" />
             <div>
               <p>{user.name}</p>
