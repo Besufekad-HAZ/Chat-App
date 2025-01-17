@@ -87,7 +87,9 @@ const LeftSidebar = () => {
     }
   };
 
-  
+  const setChat = async (item) => {
+    console.log(item);
+  };
 
   return (
     <div className="ls">
@@ -121,7 +123,7 @@ const LeftSidebar = () => {
         ) : (
           chatData &&
           chatData.map((item, index) => (
-            <div key={index} className="friends">
+            <div onClick={() => setChat(item)} key={index} className="friends">
               <img src={item.userData.avatar} alt="" />
               <div>
                 <p>{item.userData.name}</p>
