@@ -2,10 +2,10 @@ import "./LeftSidebar.css";
 import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
-
   const inputHandler = async (e) => {
     try {
       const input = e.target.value;
