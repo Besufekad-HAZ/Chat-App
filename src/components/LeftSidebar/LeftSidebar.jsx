@@ -15,10 +15,11 @@ import {
 import { db } from "../../config/firebase";
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
+import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
-  const { userData } = useContext(AppContext);
+  const { userData, chatData } = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setshowSearch] = useState(false);
 
@@ -31,7 +32,15 @@ const LeftSidebar = () => {
         const q = query(userRef, where("username", "==", input.toLowerCase()));
         const querySnap = await getDocs(q);
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
-          setUser(querySnap.docs[0].data());
+          let userExist = false;
+          chatData.map((user) => {
+            if (user.rId === querySnap.docs[0].data().id) {
+              userExist = true;
+            }
+          });
+          if (!userExist) {
+            setUser(querySnap.docs[0].data());
+          }
         } else {
           setUser(null);
         }
@@ -73,6 +82,7 @@ const LeftSidebar = () => {
         }),
       });
     } catch (err) {
+      toast.error(err.message);
       console.error(err);
     }
   };
