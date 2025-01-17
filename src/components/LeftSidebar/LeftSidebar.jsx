@@ -87,6 +87,8 @@ const LeftSidebar = () => {
     }
   };
 
+  
+
   return (
     <div className="ls">
       <div className="ls-top">
@@ -114,22 +116,19 @@ const LeftSidebar = () => {
         {showSearch && user ? (
           <div onClick={addChat} className="friends add-user">
             <img src={user.avatar} alt="User Avatar" />
-            <div>
-              <p>{user.name}</p>
-            </div>
+            <p>{user.name}</p>
           </div>
         ) : (
-          Array(12)
-            .fill("")
-            .map((item, index) => (
-              <div key={index} className="friends">
-                <img src={assets.profile_img} alt="" />
-                <div>
-                  <p> Richard Sanford</p>
-                  <span>Hello, how are you?</span>
-                </div>
+          chatData &&
+          chatData.map((item, index) => (
+            <div key={index} className="friends">
+              <img src={item.userData.avatar} alt="" />
+              <div>
+                <p>{item.userData.name}</p>
+                <span>{item.lastMessage}</span>
               </div>
-            ))
+            </div>
+          ))
         )}
       </div>
     </div>
