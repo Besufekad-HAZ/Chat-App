@@ -58,7 +58,7 @@ const ChatBox = () => {
   ) : (
     <div className="chat-welcome">
       <img src={assets.logo_icon} alt="logo" />
-      <p>chat anytime, anywhere</p>
+      <p>Chat anytime, anywhere</p>
     </div>
   );
 };
