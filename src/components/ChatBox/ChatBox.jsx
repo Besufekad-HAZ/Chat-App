@@ -1,14 +1,42 @@
 import "./ChatBox.css";
 import assets from "../../assets/assets"; // Adjust the path as necessary
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext"; // Adjust the path as necessary
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import { db } from "../../config/firebase";
 const ChatBox = () => {
-  const { userData, messagesId, chatUser, messages, setMessages } =
+  const { userData, messageId, chatUser, messages, setMessages } =
     useContext(AppContext);
 
   const [input, setInput] = useState("");
 
-  
+  const sendMessage = async () => {
+    const messagesRef = collection(db, "messages");
+    try {
+      await updateDoc(doc(messagesRef, messageId), {
+        message: arrayUnion({
+          sender: userData.id,
+          message: input,
+          time: Date.now(),
+        }),
+      });
+      setInput("");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (messageId) {
+      const unSub = onSnapshot(doc(db, "messages", messageId), (res) => {
+        setMessages(res.data().message.reverse());
+        console.log(res.data().message.reverse());
+      });
+      return () => {
+        unSub();
+      };
+    }
+  }, [messageId]);
 
   return chatUser ? (
     <div className="chat-box">
@@ -50,7 +78,12 @@ const ChatBox = () => {
       </div>
 
       <div className="chat-input">
-        <input type="text" placeholder="Type a message" />
+        <input
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+          type="text"
+          placeholder="Type a message"
+        />
         <input type="file" id="image" accept="image/*" hidden />
         <label htmlFor="image">
           <img src={assets.gallery_icon} alt="" />
