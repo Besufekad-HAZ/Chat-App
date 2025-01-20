@@ -2,8 +2,17 @@ import "./ChatBox.css";
 import assets from "../../assets/assets"; // Adjust the path as necessary
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext"; // Adjust the path as necessary
-import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { toast } from "react-toastify";
 const ChatBox = () => {
   const { userData, messageId, chatUser, messages, setMessages } =
     useContext(AppContext);
@@ -11,18 +20,40 @@ const ChatBox = () => {
   const [input, setInput] = useState("");
 
   const sendMessage = async () => {
-    const messagesRef = collection(db, "messages");
     try {
-      await updateDoc(doc(messagesRef, messageId), {
-        message: arrayUnion({
-          sender: userData.id,
-          message: input,
-          time: Date.now(),
-        }),
-      });
-      setInput("");
-    } catch (err) {
-      console.error(err);
+      if (input && messageId) {
+        await updateDoc(doc(db, "messages", messageId), {
+          message: arrayUnion({
+            sId: userData.id,
+            text: input,
+            createdAt: new Date(),
+          }),
+        });
+
+        const userIDs = [chatUser.rId, userData.id];
+        userIDs.forEach(async (id) => {
+          const userChatRef = doc(db, "chats", id);
+          const userChatSnap = await getDoc(userChatRef);
+
+          if (userChatSnap.exists()) {
+            const userChatData = userChatSnap.data();
+            const chatIndex = userChatData.chatData.findIndex(
+              (c) => c.messageId === messageId
+            );
+            userChatData.chatData[chatIndex].lastMessage = input.slice(0, 30);
+            userChatData.chatData[chatIndex].updateAt = Date.now();
+            if (userChatData.chatData[chatIndex].rId === userData.id) {
+              userChatData.chatData[chatIndex].messageSeen = false;
+            }
+            await updateDoc(userChatRef, {
+              chatData: userChatData.chatData,
+            });
+          }
+        });
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.error(error);
     }
   };
 
