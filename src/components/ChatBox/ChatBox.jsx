@@ -11,6 +11,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
+import upload from "../../lib/upload"; // Adjust the path as necessary
 import { db } from "../../config/firebase";
 import { toast } from "react-toastify";
 const ChatBox = () => {
@@ -57,6 +58,44 @@ const ChatBox = () => {
     }
 
     setInput(""); // Clear the input
+  };
+
+  const sendImage = async (e) => {
+    try {
+      const fileUrl = await upload(e.target.files[0]);
+      if (input && messageId) {
+        await updateDoc(doc(db, "messages", messageId), {
+          message: arrayUnion({
+            sId: userData.id,
+            image: fileUrl,
+            createdAt: new Date(),
+          }),
+        });
+        const userIDs = [chatUser.rId, userData.id];
+        userIDs.forEach(async (id) => {
+          const userChatRef = doc(db, "chats", id);
+          const userChatSnap = await getDoc(userChatRef);
+
+          if (userChatSnap.exists()) {
+            const userChatData = userChatSnap.data();
+            const chatIndex = userChatData.chatData.findIndex(
+              (c) => c.messageId === messageId
+            );
+            userChatData.chatData[chatIndex].lastMessage = "Image";
+            userChatData.chatData[chatIndex].updateAt = Date.now();
+            if (userChatData.chatData[chatIndex].rId === userData.id) {
+              userChatData.chatData[chatIndex].messageSeen = false;
+            }
+            await updateDoc(userChatRef, {
+              chatData: userChatData.chatData,
+            });
+          }
+        });
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.error(error);
+    }
   };
 
   const convertTimestamp = (timestamp) => {
@@ -122,7 +161,13 @@ const ChatBox = () => {
           type="text"
           placeholder="Type a message"
         />
-        <input type="file" id="image" accept="image/*" hidden />
+        <input
+          onChange={sendImage}
+          type="file"
+          id="image"
+          accept="image/*"
+          hidden
+        />
         <label htmlFor="image">
           <img src={assets.gallery_icon} alt="" />
         </label>
