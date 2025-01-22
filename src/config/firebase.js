@@ -9,6 +9,7 @@ import {
   signOut,
 } from "firebase/auth"; // for authentication
 import {
+  collection,
   doc,
   getDocs,
   getFirestore,
@@ -86,7 +87,7 @@ const resetPass = async (email) => {
     return;
   }
   try {
-    const userRef = doc(db, "users");
+    const userRef = collection(db, "users");
     const q = query(userRef, where("email", "==", email));
     const querySnap = await getDocs(q);
     if (!querySnap.empty) {

@@ -1,7 +1,7 @@
 import "./Login.css";
 import assets from "../../assets/assets";
 import { useState } from "react";
-import { signup, login } from "../../config/firebase";
+import { signup, login, resetPass } from "../../config/firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -87,6 +87,12 @@ const Login = () => {
               <span onClick={() => setCurrState("Sign up")}> click here</span>
             </p>
           )}
+          {currState === "Login" ? (
+            <p className="login-toogle">
+              Forgot password?
+              <span onClick={() => resetPass(email)}> reset here</span>
+            </p>
+          ) : null}
         </div>
       </form>
     </div>
