@@ -35,13 +35,16 @@ const LeftSidebar = () => {
         const querySnap = await getDocs(q);
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
           let userExist = false;
-          chatData.map((user) => {
-            if (user.rId === querySnap.docs[0].data().id) {
+          // Check if the user you searched already exists in your chat list
+          chatData.map((chat) => {
+            if (chat.rId === querySnap.docs[0].data().id) {
               userExist = true;
             }
           });
           if (!userExist) {
             setUser(querySnap.docs[0].data());
+          } else {
+            setUser(null);
           }
         } else {
           setUser(null);
@@ -55,16 +58,31 @@ const LeftSidebar = () => {
   };
 
   const addChat = async () => {
-    const messagesRef = collection(db, "messages");
-    const chatRef = collection(db, "chats");
     try {
+      // First, check if this user is already in your chatData
+      const userChatRef = doc(db, "chats", userData.id);
+      const userChatSnapshot = await getDoc(userChatRef);
+      if (userChatSnapshot.exists()) {
+        const userChatsData = userChatSnapshot.data();
+        const alreadyInList = userChatsData.chatData.some(
+          (chat) => chat.rId === user.id
+        );
+        if (alreadyInList) {
+          toast.error("User already exists in your chat list");
+          return;
+        }
+      }
+
+      // If user is not in the list, create a new messages doc and update both chats
+      const messagesRef = collection(db, "messages");
       const newMessageRef = doc(messagesRef);
       await setDoc(newMessageRef, {
         createAt: serverTimestamp(),
         message: [],
       });
 
-      await updateDoc(doc(chatRef, user.id), {
+      // Update the other user's chat
+      await updateDoc(doc(db, "chats", user.id), {
         chatData: arrayUnion({
           messageId: newMessageRef.id,
           lastMessage: "",
@@ -74,7 +92,8 @@ const LeftSidebar = () => {
         }),
       });
 
-      await updateDoc(doc(chatRef, userData.id), {
+      // Update the current user's chat
+      await updateDoc(doc(db, "chats", userData.id), {
         chatData: arrayUnion({
           messageId: newMessageRef.id,
           lastMessage: "",
@@ -83,6 +102,10 @@ const LeftSidebar = () => {
           messageSeen: true,
         }),
       });
+
+      // Optionally clear the search
+      setUser(null);
+      setshowSearch(false);
     } catch (err) {
       toast.error(err.message);
       console.error(err);
