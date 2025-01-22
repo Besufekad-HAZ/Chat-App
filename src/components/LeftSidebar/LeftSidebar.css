@@ -80,7 +80,7 @@
 }
 
 .friends span {
-  color: hsl(193, 100%, 76%);
+  color: hsl(157, 100%, 81%);
   font-size: 11px;
 }
 
@@ -128,4 +128,12 @@
 .menu .sub-menu p:hover {
   color: #57ee51;
   font-size: medium;
+}
+
+.friends.border img {
+  border: 3px solid #13ff8d;
+}
+
+.friends.border div span {
+  color: #41d791;
 }
