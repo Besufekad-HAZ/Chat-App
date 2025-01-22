@@ -5,11 +5,15 @@ import { signup, login, resetPass } from "../../config/firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Example usage of React Icons
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+
 const Login = () => {
   const [currState, setCurrState] = useState("Sign up");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -52,6 +56,7 @@ const Login = () => {
             required
           />
         ) : null}
+
         <input
           onChange={(e) => setEmail(e.target.value)}
           value={email}
@@ -60,21 +65,39 @@ const Login = () => {
           className="form-input"
           required
         />
-        <input
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
-          type="password"
-          placeholder="Password"
-          className="form-input"
-          required
-        />
+
+        {/* Password input with toggle icon using React Icons */}
+        <div className="password-input-wrapper">
+          <input
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="form-input"
+            required
+          />
+          {showPassword ? (
+            <MdVisibilityOff
+              onClick={() => setShowPassword(false)}
+              className="toggle-password-icon"
+            />
+          ) : (
+            <MdVisibility
+              onClick={() => setShowPassword(true)}
+              className="toggle-password-icon"
+            />
+          )}
+        </div>
+
         <button type="submit">
           {currState === "Sign up" ? "Create account" : "Login"}
         </button>
+
         <div className="login-term">
           <input type="checkbox" />
           <p>Accept terms of use and privacy policy</p>
         </div>
+
         <div className="login-forgot">
           {currState === "Sign up" ? (
             <p className="login-toogle">
