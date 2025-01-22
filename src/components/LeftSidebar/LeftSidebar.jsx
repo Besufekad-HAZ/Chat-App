@@ -16,6 +16,7 @@ import {
 import { db } from "../../config/firebase";
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
+import { logout } from "../../config/firebase";
 import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
@@ -137,7 +138,7 @@ const LeftSidebar = () => {
             <div className="sub-menu">
               <p onClick={() => navigate("/profile")}>Edit Profile</p>
               <hr />
-              <p>Log Out</p>
+              <p onClick={() => logout()}>Log Out</p>
             </div>
           </div>
         </div>
