@@ -1,8 +1,29 @@
 import assets from "../../assets/assets";
 import { logout } from "../../config/firebase";
 import "./RightSidebar.css";
+import { useNavigate } from "react-router-dom";
+import {
+  setDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+  getDoc,
+} from "firebase/firestore";
+import { db } from "../../config/firebase";
+import { useContext, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import { toast } from "react-toastify";
 
 const RightSidebar = () => {
+  const { userData, chatData, chatUser, setChatUser, setMessageId, messageId } =
+    useContext(AppContext);
+  // const [user, setUser] = useState(null);
+
   return (
     <div className="rs">
       <div className="rs-profile">
