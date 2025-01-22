@@ -14,6 +14,7 @@ import {
 import upload from "../../lib/upload"; // Adjust the path as necessary
 import { db } from "../../config/firebase";
 import { toast } from "react-toastify";
+
 const ChatBox = () => {
   const { userData, messageId, chatUser, messages, setMessages } =
     useContext(AppContext);
@@ -63,7 +64,7 @@ const ChatBox = () => {
   const sendImage = async (e) => {
     try {
       const fileUrl = await upload(e.target.files[0]);
-      if (input && messageId) {
+      if (fileUrl && messageId) {
         await updateDoc(doc(db, "messages", messageId), {
           message: arrayUnion({
             sId: userData.id,
@@ -74,10 +75,10 @@ const ChatBox = () => {
         const userIDs = [chatUser.rId, userData.id];
         userIDs.forEach(async (id) => {
           const userChatRef = doc(db, "chats", id);
-          const userChatSnap = await getDoc(userChatRef);
+          const userChatSnapshot = await getDoc(userChatRef);
 
-          if (userChatSnap.exists()) {
-            const userChatData = userChatSnap.data();
+          if (userChatSnapshot.exists()) {
+            const userChatData = userChatSnapshot.data();
             const chatIndex = userChatData.chatData.findIndex(
               (c) => c.messageId === messageId
             );
@@ -138,7 +139,12 @@ const ChatBox = () => {
             key={index}
             className={msg.sId === userData.id ? "s-msg" : "r-msg"}
           >
-            <p className="msg">{msg.text}</p>
+            {msg["image"] ? (
+              <img className="msg-img" src={msg.image} alt="img" />
+            ) : (
+              <p className="msg">{msg.text}</p>
+            )}
+
             <div>
               <img
                 src={
