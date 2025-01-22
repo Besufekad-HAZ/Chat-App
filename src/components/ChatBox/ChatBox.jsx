@@ -59,11 +59,22 @@ const ChatBox = () => {
     setInput(""); // Clear the input
   };
 
+  const convertTimestamp = (timestamp) => {
+    const date = timestamp.toDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    if (hour >= 12) {
+      return `${hour - 12}:${minute} PM`;
+    } else {
+      return `${hour}:${minute} AM`;
+    }
+  };
+
   useEffect(() => {
     if (messageId) {
       const unSub = onSnapshot(doc(db, "messages", messageId), (res) => {
         setMessages(res.data().message.reverse());
-        console.log(res.data().message.reverse());
+        // console.log(res.data().message.reverse());
       });
       return () => {
         unSub();
@@ -83,31 +94,25 @@ const ChatBox = () => {
       </div>
 
       <div className="chat-msg">
-        <div className="s-msg">
-          <p className="msg">
-            Lorem ipsum dolor sit amet consectetur adipisight ..
-          </p>
-          <div>
-            <img src={assets.profile_img} alt="" />
-            <p>2:30 PM</p>
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={msg.sId === userData.id ? "s-msg" : "r-msg"}
+          >
+            <p className="msg">{msg.text}</p>
+            <div>
+              <img
+                src={
+                  msg.sId === userData.id
+                    ? userData.avatar
+                    : chatUser.userData.avatar
+                }
+                alt=""
+              />
+              <p>{convertTimestamp(msg.createdAt)}</p>
+            </div>
           </div>
-        </div>
-        <div className="s-msg">
-          <img className="msg-img" src={assets.profile_suree} alt="" />
-          <div>
-            <img src={assets.profile_img} alt="" />
-            <p>2:30 PM</p>
-          </div>
-        </div>
-        <div className="r-msg">
-          <p className="msg">
-            Lorem ipsum dolor sit amet consectetur adipisigh ..
-          </p>
-          <div>
-            <img src={assets.profile_aman} alt="" />
-            <p>2:30 PM</p>
-          </div>
-        </div>
+        ))}
       </div>
 
       <div className="chat-input">
