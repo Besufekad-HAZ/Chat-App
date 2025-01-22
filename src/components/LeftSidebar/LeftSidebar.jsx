@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useContext, useState } from "react";
@@ -91,6 +92,16 @@ const LeftSidebar = () => {
   const setChat = async (item) => {
     setMessageId(item.messageId);
     setChatUser(item);
+    const userChatRef = doc(db, "chats", userData.id);
+    const userChatSnapshot = await getDoc(userChatRef);
+    const userChatsData = userChatSnapshot.data();
+    const chatIndex = userChatsData.chatData.findIndex(
+      (chat) => chat.messageId === item.messageId
+    );
+    userChatsData.chatData[chatIndex].messageSeen = true;
+    await updateDoc(userChatRef, {
+      chatData: userChatsData.chatData,
+    });
   };
 
   return (
