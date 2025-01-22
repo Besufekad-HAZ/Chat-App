@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
-  const { userData, chatData, chatUser, setChatUser, setMessageId, messageId } =
+  const { userData, chatData, setChatUser, setMessageId, messageId } =
     useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setshowSearch] = useState(false);

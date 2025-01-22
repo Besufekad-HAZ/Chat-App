@@ -1,23 +1,10 @@
 import assets from "../../assets/assets";
 import { logout } from "../../config/firebase";
 import "./RightSidebar.css";
-import { useNavigate } from "react-router-dom";
-import {
-  setDoc,
-  arrayUnion,
-  collection,
-  doc,
-  getDocs,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
-  getDoc,
-} from "firebase/firestore";
-import { db } from "../../config/firebase";
+// import { db } from "../../config/firebase";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
 const RightSidebar = () => {
   const { chatUser, messages } = useContext(AppContext);

@@ -4,11 +4,9 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext"; // Adjust the path as necessary
 import {
   arrayUnion,
-  collection,
   doc,
   getDoc,
   onSnapshot,
-  query,
   updateDoc,
 } from "firebase/firestore";
 import upload from "../../lib/upload"; // Adjust the path as necessary
