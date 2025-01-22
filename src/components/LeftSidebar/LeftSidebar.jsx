@@ -14,7 +14,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import { logout } from "../../config/firebase";
 import { toast } from "react-toastify";
@@ -24,6 +24,7 @@ const LeftSidebar = () => {
   const {
     userData,
     chatData,
+    chatUser,
     setChatUser,
     setMessageId,
     messageId,
@@ -111,9 +112,20 @@ const LeftSidebar = () => {
         }),
       });
 
-      // Optionally clear the search
-      setUser(null);
+      const uSnap = await getDoc(doc(db, "users", user.id));
+      const uData = uSnap.data();
+      setChatUser({
+        messageId: newMessageRef.id,
+        lastMessage: "",
+        rId: user.id,
+        updateAt: Date.now(),
+        messageSeen: true,
+        userData: uData,
+      });
+
       setshowSearch(false);
+      setChatVisible(true);
+      // setUser(null);
     } catch (err) {
       toast.error(err.message);
       console.error(err);
@@ -135,6 +147,17 @@ const LeftSidebar = () => {
     });
     setChatVisible(true);
   };
+  useEffect(() => {
+    const updateChatUserData = async () => {
+      if (chatUser) {
+        const userRef = doc(db, "users", chatUser.rId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        setChatUser((prev) => ({ ...prev, userData: userData }));
+      }
+    };
+    updateChatUserData();
+  }, [chatData]);
 
   return (
     <div className={`ls ${chatVisible ? "hidden" : ""}`}>
