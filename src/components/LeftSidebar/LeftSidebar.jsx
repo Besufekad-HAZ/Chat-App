@@ -14,14 +14,23 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
+import { logout } from "../../config/firebase";
 import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
-  const { userData, chatData, chatUser, setChatUser, setMessageId, messageId } =
-    useContext(AppContext);
+  const {
+    userData,
+    chatData,
+    chatUser,
+    setChatUser,
+    setMessageId,
+    messageId,
+    chatVisible,
+    setChatVisible,
+  } = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setshowSearch] = useState(false);
 
@@ -35,13 +44,16 @@ const LeftSidebar = () => {
         const querySnap = await getDocs(q);
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
           let userExist = false;
-          chatData.map((user) => {
-            if (user.rId === querySnap.docs[0].data().id) {
+          // Check if the user you searched already exists in your chat list
+          chatData.map((chat) => {
+            if (chat.rId === querySnap.docs[0].data().id) {
               userExist = true;
             }
           });
           if (!userExist) {
             setUser(querySnap.docs[0].data());
+          } else {
+            setUser(null);
           }
         } else {
           setUser(null);
@@ -55,16 +67,31 @@ const LeftSidebar = () => {
   };
 
   const addChat = async () => {
-    const messagesRef = collection(db, "messages");
-    const chatRef = collection(db, "chats");
     try {
+      // First, check if this user is already in your chatData
+      const userChatRef = doc(db, "chats", userData.id);
+      const userChatSnapshot = await getDoc(userChatRef);
+      if (userChatSnapshot.exists()) {
+        const userChatsData = userChatSnapshot.data();
+        const alreadyInList = userChatsData.chatData.some(
+          (chat) => chat.rId === user.id
+        );
+        if (alreadyInList) {
+          toast.error("User already exists in your chat list");
+          return;
+        }
+      }
+
+      // If user is not in the list, create a new messages doc and update both chats
+      const messagesRef = collection(db, "messages");
       const newMessageRef = doc(messagesRef);
       await setDoc(newMessageRef, {
         createAt: serverTimestamp(),
         message: [],
       });
 
-      await updateDoc(doc(chatRef, user.id), {
+      // Update the other user's chat
+      await updateDoc(doc(db, "chats", user.id), {
         chatData: arrayUnion({
           messageId: newMessageRef.id,
           lastMessage: "",
@@ -74,7 +101,8 @@ const LeftSidebar = () => {
         }),
       });
 
-      await updateDoc(doc(chatRef, userData.id), {
+      // Update the current user's chat
+      await updateDoc(doc(db, "chats", userData.id), {
         chatData: arrayUnion({
           messageId: newMessageRef.id,
           lastMessage: "",
@@ -83,6 +111,21 @@ const LeftSidebar = () => {
           messageSeen: true,
         }),
       });
+
+      const uSnap = await getDoc(doc(db, "users", user.id));
+      const uData = uSnap.data();
+      setChatUser({
+        messageId: newMessageRef.id,
+        lastMessage: "",
+        rId: user.id,
+        updateAt: Date.now(),
+        messageSeen: true,
+        userData: uData,
+      });
+
+      setshowSearch(false);
+      setChatVisible(true);
+      // setUser(null);
     } catch (err) {
       toast.error(err.message);
       console.error(err);
@@ -102,10 +145,22 @@ const LeftSidebar = () => {
     await updateDoc(userChatRef, {
       chatData: userChatsData.chatData,
     });
+    setChatVisible(true);
   };
+  useEffect(() => {
+    const updateChatUserData = async () => {
+      if (chatUser) {
+        const userRef = doc(db, "users", chatUser.rId);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        setChatUser((prev) => ({ ...prev, userData: userData }));
+      }
+    };
+    updateChatUserData();
+  }, [chatData]);
 
   return (
-    <div className="ls">
+    <div className={`ls ${chatVisible ? "hidden" : ""}`}>
       <div className="ls-top">
         <div className="ls-nav">
           <img src={assets.logo} alt="nav logo" className="logo" />
@@ -114,7 +169,7 @@ const LeftSidebar = () => {
             <div className="sub-menu">
               <p onClick={() => navigate("/profile")}>Edit Profile</p>
               <hr />
-              <p>Log Out</p>
+              <p onClick={() => logout()}>Log Out</p>
             </div>
           </div>
         </div>

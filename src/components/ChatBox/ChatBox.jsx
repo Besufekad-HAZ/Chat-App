@@ -4,11 +4,9 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext"; // Adjust the path as necessary
 import {
   arrayUnion,
-  collection,
   doc,
   getDoc,
   onSnapshot,
-  query,
   updateDoc,
 } from "firebase/firestore";
 import upload from "../../lib/upload"; // Adjust the path as necessary
@@ -16,8 +14,15 @@ import { db } from "../../config/firebase";
 import { toast } from "react-toastify";
 
 const ChatBox = () => {
-  const { userData, messageId, chatUser, messages, setMessages } =
-    useContext(AppContext);
+  const {
+    userData,
+    messageId,
+    chatUser,
+    messages,
+    setMessages,
+    chatVisible,
+    setChatVisible,
+  } = useContext(AppContext);
 
   const [input, setInput] = useState("");
 
@@ -123,14 +128,22 @@ const ChatBox = () => {
   }, [messageId]);
 
   return chatUser ? (
-    <div className="chat-box">
+    <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
       <div className="chat-user">
         <img src={chatUser.userData.avatar} alt="" />
         <p>
           {chatUser.userData.username}
-          <img className="dot" src={assets.green_dot} alt="" />
+          {Date.now() - chatUser.userData.lastSeen < 70000 ? (
+            <img className="dot" src={assets.green_dot} alt="" />
+          ) : null}
         </p>
-        <img src={assets.help_icon} className="help" alt="" />
+        <img src={assets.help_icon} className="help" alt="Help icon" />
+        <img
+          onClick={() => setChatVisible()}
+          src={assets.arrow_icon}
+          className="arrow"
+          alt="Back arrow icon"
+        />
       </div>
 
       <div className="chat-msg">
@@ -181,7 +194,7 @@ const ChatBox = () => {
       </div>
     </div>
   ) : (
-    <div className="chat-welcome">
+    <div className={`chat-welcome ${chatVisible ? "" : "hidden"}`}>
       <img src={assets.logo_icon} alt="logo" />
       <p>Chat anytime, anywhere</p>
     </div>

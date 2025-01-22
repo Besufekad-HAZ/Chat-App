@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 export const AppContext = createContext();
@@ -13,27 +13,37 @@ export const AppContextProvider = (props) => {
   const [messageId, setMessageId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatUser, setChatUser] = useState(null);
+  const [chatVisible, setChatVisible] = useState(false);
 
   const loadUserData = async (uid) => {
     try {
       const userRef = doc(db, "users", uid);
       const userSnap = await getDoc(userRef);
-      const userData = userSnap.data();
-      console.log(userData);
-      setUserData(userData);
-      if (userData.avatar && userData.name) {
+      const user = userSnap.data();
+
+      // Set your user data
+      setUserData(user);
+
+      // If they have an avatar & name, go to chat; otherwise, profile
+      if (user.avatar && user.name) {
         navigate("/chat");
       } else {
         navigate("/profile");
       }
+
+      // Immediately update lastSeen for online status
       await updateDoc(userRef, {
         lastSeen: Date.now(),
       });
-      setInterval(async () => {
-        if (auth.chatUser) {
+
+      // Every minute, update lastSeen if user is still logged in
+      const intervalId = setInterval(async () => {
+        if (auth.currentUser) {
           await updateDoc(userRef, {
             lastSeen: Date.now(),
           });
+        } else {
+          clearInterval(intervalId);
         }
       }, 60000);
     } catch (err) {
@@ -41,19 +51,21 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  // Once userData is set, load or subscribe to chats
   useEffect(() => {
     if (userData) {
       const chatRef = doc(db, "chats", userData.id);
       const unSub = onSnapshot(chatRef, async (res) => {
-        const chatItems = res.data().chatData;
+        const chatItems = res.data()?.chatData || [];
         const tempData = [];
         for (const item of chatItems) {
           const userRef = doc(db, "users", item.rId);
           const userSnap = await getDoc(userRef);
-          const userData = userSnap.data();
-          tempData.push({ ...item, userData });
+          const userDetails = userSnap.data();
+          tempData.push({ ...item, userData: userDetails });
         }
-        setChatData(tempData.sort((a, b) => b.updatedAt - a.updatedAt));
+        // Sort by updatedAt (descending) so newest chats appear first
+        setChatData(tempData.sort((a, b) => b.updateAt - a.updateAt));
       });
       return () => {
         unSub();
@@ -73,12 +85,15 @@ export const AppContextProvider = (props) => {
     setMessages,
     chatUser,
     setChatUser,
+    chatVisible,
+    setChatVisible,
   };
 
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
   );
 };
+
 AppContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };

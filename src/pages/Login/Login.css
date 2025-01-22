@@ -66,3 +66,23 @@
   color: #077011;
   cursor: pointer;
 }
+
+.password-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password-icon {
+  cursor: pointer;
+  color: #077011;
+  margin-left: 8px;
+  font-size: 1.3rem;
+}
+
+@media (max-width: 768px) {
+  .login {
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
+  }
+}
