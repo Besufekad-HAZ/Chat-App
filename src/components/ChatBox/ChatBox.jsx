@@ -14,8 +14,15 @@ import { db } from "../../config/firebase";
 import { toast } from "react-toastify";
 
 const ChatBox = () => {
-  const { userData, messageId, chatUser, messages, setMessages } =
-    useContext(AppContext);
+  const {
+    userData,
+    messageId,
+    chatUser,
+    messages,
+    setMessages,
+    chatVisible,
+    setChatVisible,
+  } = useContext(AppContext);
 
   const [input, setInput] = useState("");
 
@@ -121,7 +128,7 @@ const ChatBox = () => {
   }, [messageId]);
 
   return chatUser ? (
-    <div className="chat-box">
+    <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
       <div className="chat-user">
         <img src={chatUser.userData.avatar} alt="" />
         <p>
@@ -130,7 +137,13 @@ const ChatBox = () => {
             <img className="dot" src={assets.green_dot} alt="" />
           ) : null}
         </p>
-        <img src={assets.help_icon} className="help" alt="" />
+        <img src={assets.help_icon} className="help" alt="Help icon" />
+        <img
+          onClick={() => setChatVisible()}
+          src={assets.arrow_icon}
+          className="arrow"
+          alt="Back arrow icon"
+        />
       </div>
 
       <div className="chat-msg">
@@ -181,7 +194,7 @@ const ChatBox = () => {
       </div>
     </div>
   ) : (
-    <div className="chat-welcome">
+    <div className={`chat-welcome ${chatVisible ? "" : "hidden"}`}>
       <img src={assets.logo_icon} alt="logo" />
       <p>Chat anytime, anywhere</p>
     </div>
