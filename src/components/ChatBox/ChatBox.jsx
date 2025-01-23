@@ -125,7 +125,14 @@ const ChatBox = () => {
         unSub();
       };
     }
-  }, [messageId]);
+  }, [messageId, setMessages]);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   return chatUser ? (
     <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
@@ -179,6 +186,7 @@ const ChatBox = () => {
           value={input}
           type="text"
           placeholder="Type a message"
+          onKeyDown={handleKeyPress}
         />
         <input
           onChange={sendImage}
