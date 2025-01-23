@@ -157,7 +157,7 @@ const LeftSidebar = () => {
       }
     };
     updateChatUserData();
-  }, [chatData]);
+  }, [chatData, chatUser, setChatUser]);
 
   return (
     <div className={`ls ${chatVisible ? "hidden" : ""}`}>

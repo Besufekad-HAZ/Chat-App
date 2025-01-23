@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 const Login = () => {
-  const [currState, setCurrState] = useState("Sign up");
+  const [currState, setCurrState] = useState("Login");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -90,7 +90,7 @@ const Login = () => {
         </div>
 
         <button type="submit">
-          {currState === "Sign up" ? "Create account" : "Login"}
+          {currState === "Login" ? "Login" : "Create account"}
         </button>
 
         <div className="login-term">
@@ -99,15 +99,15 @@ const Login = () => {
         </div>
 
         <div className="login-forgot">
-          {currState === "Sign up" ? (
-            <p className="login-toogle">
-              Already have an account
-              <span onClick={() => setCurrState("Login")}> Login here</span>
-            </p>
-          ) : (
+          {currState === "Login" ? (
             <p className="login-toogle">
               Create an account
               <span onClick={() => setCurrState("Sign up")}> click here</span>
+            </p>
+          ) : (
+            <p className="login-toogle">
+              Already have an account
+              <span onClick={() => setCurrState("Login")}> Login here</span>
             </p>
           )}
           {currState === "Login" ? (

@@ -125,7 +125,7 @@ const ChatBox = () => {
         unSub();
       };
     }
-  }, [messageId]);
+  }, [messageId, setMessages]);
 
   return chatUser ? (
     <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
