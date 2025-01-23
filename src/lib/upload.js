@@ -5,31 +5,28 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
-const upload = async (file) => {
+const upload = async (file, onProgress, onUploadTask) => {
   const storage = getStorage();
-  const storageRef = ref(storage, `images/${Date.now() + file.name}`);
-
+  const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
   const uploadTask = uploadBytesResumable(storageRef, file);
 
-  // eslint-disable-next-line no-unused-vars
+  if (onUploadTask) {
+    onUploadTask(uploadTask); // Provide the upload task so we can cancel later
+  }
+
   return new Promise((resolve, reject) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-        switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
-          case "running":
-            console.log("Upload is running");
-            break;
+        if (onProgress) {
+          onProgress(progress);
         }
       },
       (error) => {
-        console.log(error);
+        console.error(error);
+        reject(error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
