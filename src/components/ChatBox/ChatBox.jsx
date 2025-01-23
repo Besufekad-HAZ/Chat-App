@@ -25,6 +25,7 @@ const ChatBox = () => {
   } = useContext(AppContext);
 
   const [input, setInput] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const sendMessage = async () => {
     try {
@@ -68,7 +69,10 @@ const ChatBox = () => {
 
   const sendImage = async (e) => {
     try {
-      const fileUrl = await upload(e.target.files[0]);
+      setUploadProgress(0); // Reset progress for each new upload
+      const fileUrl = await upload(e.target.files[0], (progress) =>
+        setUploadProgress(progress)
+      );
       if (fileUrl && messageId) {
         await updateDoc(doc(db, "messages", messageId), {
           message: arrayUnion({
@@ -200,6 +204,18 @@ const ChatBox = () => {
         </label>
         <img onClick={sendMessage} src={assets.send_button} alt="" />
       </div>
+      {/* Visually display progress */}
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <div className="progress-container">
+          <p>Uploading Image: {Math.round(uploadProgress)}%</p>
+          <div className="progress-bar">
+            <div
+              className="progress-value"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
     </div>
   ) : (
     <div className={`chat-welcome ${chatVisible ? "" : "hidden"}`}>

@@ -149,6 +149,32 @@
   display: none;
 }
 
+.progress-container {
+  margin: 7%;
+  text-align: center;
+}
+
+.progress-container p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 8px;
+  background-color: #ccc;
+  margin: 0 auto;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-value {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+
 @media (max-width: 900px) {
   .chat-box {
     width: 100%;
