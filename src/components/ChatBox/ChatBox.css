@@ -82,6 +82,13 @@
   display: flex;
 }
 
+.s-msg .msg-img {
+  color: #f1f5ff;
+  background-color: #030303;
+  border-radius: 8px 8px 0px 8px;
+  margin-left: -9%;
+}
+
 .s-msg,
 .r-msg {
   display: flex;
@@ -112,8 +119,15 @@
   color: #f1f5ff;
   background-color: #030303;
   border-radius: 8px 8px 8px 0px;
+  margin-left: -9%;
 }
 
+.r-msg .msg-img {
+  color: #f1f5ff;
+  background-color: #030303;
+  border-radius: 8px 8px 8px 0px;
+  margin-left: -9%;
+}
 .s-msg div,
 .r-msg div {
   text-align: center;
