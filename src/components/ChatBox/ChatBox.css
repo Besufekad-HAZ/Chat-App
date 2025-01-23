@@ -105,7 +105,7 @@
   font-size: 11px;
   font-weight: 300;
   border-radius: 8px 8px 0px 8px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .r-msg .msg {
@@ -196,8 +196,53 @@
   color: #fff;
   padding: 4px 8px;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 3%;
   border-radius: 4px;
+}
+
+/* Right-click menu */
+.context-menu {
+  position: absolute; /* keeps it at the (x, y) assigned in JS */
+  top: 0;
+  left: 0;
+  transform: translate(-80vh, -23vh);
+  background: #fff;
+  border: 1px solid #ccc;
+  z-index: 9999; /* higher level so it appears on top of messages */
+  padding: 4px 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background: #eee;
+}
+
+/* Editing box */
+.edit-message-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e2e2e2;
+  padding: 8px;
+}
+.save-edit-btn,
+.cancel-edit-btn {
+  background: #007bff;
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cancel-edit-btn {
+  background: #999;
 }
 
 @media (max-width: 900px) {

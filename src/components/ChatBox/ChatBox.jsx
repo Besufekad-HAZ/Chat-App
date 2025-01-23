@@ -1,6 +1,6 @@
 import "./ChatBox.css";
 import assets from "../../assets/assets";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import {
   arrayUnion,
@@ -28,6 +28,15 @@ const ChatBox = () => {
   const [input, setInput] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadTaskRef, setUploadTaskRef] = useState(null);
+
+  // For context menu
+  const [contextMenuVisible, setContextMenuVisible] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // For edit
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState("");
 
   // Send text message
   const sendMessage = async () => {
@@ -123,11 +132,70 @@ const ChatBox = () => {
         message: arrayRemove(msgObj),
       });
       toast.success("Message deleted");
-      // Optionally update lastMessage references if the deleted message was the last one
+      // Optionally update lastMessage references if the deleted one was the last message
+    } catch (err) {
+      toast.error(err.message);
+      console.error(err);
+    } finally {
+      closeContextMenu();
+    }
+  };
+
+  // Start editing a text message
+  const startEditMessage = (msgObj) => {
+    setIsEditing(true);
+    setEditText(msgObj.text || "");
+    setSelectedMessage(msgObj);
+    closeContextMenu();
+  };
+
+  // Submit edit changes
+  const submitEdit = async () => {
+    if (!editText || !messageId || !selectedMessage) {
+      setIsEditing(false);
+      return;
+    }
+    try {
+      // Remove old message
+      await updateDoc(doc(db, "messages", messageId), {
+        message: arrayRemove(selectedMessage),
+      });
+      // Add updated message
+      await updateDoc(doc(db, "messages", messageId), {
+        message: arrayUnion({
+          ...selectedMessage,
+          text: editText,
+        }),
+      });
+      await updateLastMessageReferences(editText.slice(0, 30));
+      toast.success("Message updated");
     } catch (err) {
       toast.error(err.message);
       console.error(err);
     }
+    setIsEditing(false);
+    setSelectedMessage(null);
+  };
+
+  // Cancel edit
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setSelectedMessage(null);
+  };
+
+  // Right-click handler
+  const handleContextMenu = (e, msg) => {
+    e.preventDefault();
+    // Only show context menu for user's own messages
+    if (msg.sId !== userData.id) return;
+    setSelectedMessage(msg);
+    setContextMenuPos({ x: e.clientX, y: e.clientY });
+    setContextMenuVisible(true);
+  };
+
+  // Close the context menu
+  const closeContextMenu = () => {
+    setContextMenuVisible(false);
   };
 
   const convertTimestamp = (timestamp) => {
@@ -153,6 +221,24 @@ const ChatBox = () => {
     }
   };
 
+  // Click outside context menu to close
+  const containerRef = useRef();
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        contextMenuVisible &&
+        containerRef.current &&
+        !containerRef.current.contains(e.target)
+      ) {
+        closeContextMenu();
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [contextMenuVisible]);
+
   return chatUser ? (
     <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
       <div className="chat-user">
@@ -172,11 +258,30 @@ const ChatBox = () => {
         />
       </div>
 
+      {/* If editing, a simple input at top or bottom to modify text */}
+      {isEditing && (
+        <div className="edit-message-container">
+          <input
+            type="text"
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            placeholder="Edit your message"
+          />
+          <button className="save-edit-btn" onClick={submitEdit}>
+            Save
+          </button>
+          <button className="cancel-edit-btn" onClick={cancelEdit}>
+            Cancel
+          </button>
+        </div>
+      )}
+
       <div className="chat-msg">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={msg.sId === userData.id ? "s-msg" : "r-msg"}
+            onContextMenu={(e) => handleContextMenu(e, msg)}
           >
             {msg.image ? (
               <img className="msg-img" src={msg.image} alt="img" />
@@ -193,19 +298,12 @@ const ChatBox = () => {
                 alt=""
               />
               <p>{convertTimestamp(msg.createdAt)}</p>
-              {msg.sId === userData.id && (
-                <button
-                  className="delete-btn"
-                  onClick={() => deleteMessage(msg)}
-                >
-                  Delete
-                </button>
-              )}
             </div>
           </div>
         ))}
       </div>
 
+      {/* Simple input for sending text */}
       <div className="chat-input">
         <input
           onChange={(e) => setInput(e.target.value)}
@@ -230,7 +328,7 @@ const ChatBox = () => {
       {/* Show image upload progress & a cancel button */}
       {uploadProgress > 0 && uploadProgress < 100 && (
         <div className="progress-container">
-          <p>Uploading: {Math.round(uploadProgress)}%</p>
+          <p>Uploading Image: {Math.round(uploadProgress)}%</p>
           <div className="progress-bar">
             <div
               className="progress-value"
@@ -240,6 +338,31 @@ const ChatBox = () => {
           <button className="cancel-upload-btn" onClick={cancelUpload}>
             Cancel
           </button>
+        </div>
+      )}
+
+      {/* Custom context menu (right-click) */}
+      {contextMenuVisible && selectedMessage && (
+        <div
+          ref={containerRef}
+          className="context-menu"
+          style={{ top: contextMenuPos.y, left: contextMenuPos.x }}
+        >
+          {/* If it's an image, only show Delete. If text, show both Edit & Delete */}
+          {!selectedMessage.image && (
+            <div
+              className="context-menu-item"
+              onClick={() => startEditMessage(selectedMessage)}
+            >
+              Edit
+            </div>
+          )}
+          <div
+            className="context-menu-item"
+            onClick={() => deleteMessage(selectedMessage)}
+          >
+            Delete
+          </div>
         </div>
       )}
     </div>
