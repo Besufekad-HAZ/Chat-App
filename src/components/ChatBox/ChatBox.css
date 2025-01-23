@@ -149,6 +149,21 @@
   display: none;
 }
 
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #f44;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+.msg-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .progress-container {
   margin: 7%;
   text-align: center;
@@ -173,6 +188,16 @@
   height: 100%;
   background-color: #4caf50;
   transition: width 0.3s ease;
+}
+
+.cancel-upload-btn {
+  background: #f44;
+  border: none;
+  color: #fff;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-top: 4px;
+  border-radius: 4px;
 }
 
 @media (max-width: 900px) {

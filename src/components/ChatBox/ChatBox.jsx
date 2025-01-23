@@ -1,15 +1,16 @@
 import "./ChatBox.css";
-import assets from "../../assets/assets"; // Adjust the path as necessary
+import assets from "../../assets/assets";
 import { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext"; // Adjust the path as necessary
+import { AppContext } from "../../context/AppContext";
 import {
   arrayUnion,
+  arrayRemove,
   doc,
   getDoc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import upload from "../../lib/upload"; // Adjust the path as necessary
+import upload from "../../lib/upload";
 import { db } from "../../config/firebase";
 import { toast } from "react-toastify";
 
@@ -26,7 +27,9 @@ const ChatBox = () => {
 
   const [input, setInput] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadTaskRef, setUploadTaskRef] = useState(null);
 
+  // Send text message
   const sendMessage = async () => {
     try {
       if (input && messageId) {
@@ -37,42 +40,26 @@ const ChatBox = () => {
             createdAt: new Date(),
           }),
         });
-
-        const userIDs = [chatUser.rId, userData.id];
-        userIDs.forEach(async (id) => {
-          const userChatRef = doc(db, "chats", id);
-          const userChatSnap = await getDoc(userChatRef);
-
-          if (userChatSnap.exists()) {
-            const userChatData = userChatSnap.data();
-            const chatIndex = userChatData.chatData.findIndex(
-              (c) => c.messageId === messageId
-            );
-            userChatData.chatData[chatIndex].lastMessage = input.slice(0, 30);
-            userChatData.chatData[chatIndex].updateAt = Date.now();
-            if (userChatData.chatData[chatIndex].rId === userData.id) {
-              userChatData.chatData[chatIndex].messageSeen = false;
-            }
-            await updateDoc(userChatRef, {
-              chatData: userChatData.chatData,
-            });
-          }
-        });
+        await updateLastMessageReferences(input.slice(0, 30));
       }
     } catch (error) {
       toast.error(error.message);
       console.error(error);
     }
-
-    setInput(""); // Clear the input
+    setInput("");
   };
 
+  // Send image
   const sendImage = async (e) => {
     try {
-      setUploadProgress(0); // Reset progress for each new upload
-      const fileUrl = await upload(e.target.files[0], (progress) =>
-        setUploadProgress(progress)
+      setUploadProgress(0);
+      const file = e.target.files[0];
+      const fileUrl = await upload(
+        file,
+        (progress) => setUploadProgress(progress),
+        (task) => setUploadTaskRef(task)
       );
+      // If upload is canceled, fileUrl won't exist
       if (fileUrl && messageId) {
         await updateDoc(doc(db, "messages", messageId), {
           message: arrayUnion({
@@ -81,30 +68,65 @@ const ChatBox = () => {
             createdAt: new Date(),
           }),
         });
-        const userIDs = [chatUser.rId, userData.id];
-        userIDs.forEach(async (id) => {
-          const userChatRef = doc(db, "chats", id);
-          const userChatSnapshot = await getDoc(userChatRef);
-
-          if (userChatSnapshot.exists()) {
-            const userChatData = userChatSnapshot.data();
-            const chatIndex = userChatData.chatData.findIndex(
-              (c) => c.messageId === messageId
-            );
-            userChatData.chatData[chatIndex].lastMessage = "Image";
-            userChatData.chatData[chatIndex].updateAt = Date.now();
-            if (userChatData.chatData[chatIndex].rId === userData.id) {
-              userChatData.chatData[chatIndex].messageSeen = false;
-            }
-            await updateDoc(userChatRef, {
-              chatData: userChatData.chatData,
-            });
-          }
-        });
+        await updateLastMessageReferences("Image");
       }
     } catch (error) {
       toast.error(error.message);
       console.error(error);
+    } finally {
+      setUploadTaskRef(null);
+      setUploadProgress(0);
+    }
+  };
+
+  // Cancel upload
+  const cancelUpload = () => {
+    if (uploadTaskRef) {
+      uploadTaskRef.cancel();
+      setUploadTaskRef(null);
+      setUploadProgress(0);
+      toast.info("Upload canceled");
+    }
+  };
+
+  // Update lastMessage references
+  const updateLastMessageReferences = async (textValue) => {
+    const userIDs = [chatUser.rId, userData.id];
+    for (const id of userIDs) {
+      const userChatRef = doc(db, "chats", id);
+      const userChatSnap = await getDoc(userChatRef);
+      if (userChatSnap.exists()) {
+        const userChatData = userChatSnap.data();
+        const chatIndex = userChatData.chatData.findIndex(
+          (c) => c.messageId === messageId
+        );
+        if (chatIndex !== -1) {
+          userChatData.chatData[chatIndex].lastMessage = textValue;
+          userChatData.chatData[chatIndex].updateAt = Date.now();
+          if (userChatData.chatData[chatIndex].rId === userData.id) {
+            userChatData.chatData[chatIndex].messageSeen = false;
+          }
+          await updateDoc(userChatRef, {
+            chatData: userChatData.chatData,
+          });
+        }
+      }
+    }
+  };
+
+  // Delete a message
+  const deleteMessage = async (msgObj) => {
+    try {
+      if (!messageId) return;
+      // Remove specific message object from Firestore array
+      await updateDoc(doc(db, "messages", messageId), {
+        message: arrayRemove(msgObj),
+      });
+      toast.success("Message deleted");
+      // Optionally update lastMessage references if the deleted message was the last one
+    } catch (err) {
+      toast.error(err.message);
+      console.error(err);
     }
   };
 
@@ -112,22 +134,15 @@ const ChatBox = () => {
     const date = timestamp.toDate();
     const hour = date.getHours();
     const minute = date.getMinutes();
-    if (hour >= 12) {
-      return `${hour - 12}:${minute} PM`;
-    } else {
-      return `${hour}:${minute} AM`;
-    }
+    return hour >= 12 ? `${hour - 12}:${minute} PM` : `${hour}:${minute} AM`;
   };
 
   useEffect(() => {
     if (messageId) {
       const unSub = onSnapshot(doc(db, "messages", messageId), (res) => {
-        setMessages(res.data().message.reverse());
-        // console.log(res.data().message.reverse());
+        setMessages(res.data()?.message.reverse() || []);
       });
-      return () => {
-        unSub();
-      };
+      return () => unSub();
     }
   }, [messageId, setMessages]);
 
@@ -163,13 +178,12 @@ const ChatBox = () => {
             key={index}
             className={msg.sId === userData.id ? "s-msg" : "r-msg"}
           >
-            {msg["image"] ? (
+            {msg.image ? (
               <img className="msg-img" src={msg.image} alt="img" />
             ) : (
               <p className="msg">{msg.text}</p>
             )}
-
-            <div>
+            <div className="msg-footer">
               <img
                 src={
                   msg.sId === userData.id
@@ -179,6 +193,14 @@ const ChatBox = () => {
                 alt=""
               />
               <p>{convertTimestamp(msg.createdAt)}</p>
+              {msg.sId === userData.id && (
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteMessage(msg)}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -204,16 +226,20 @@ const ChatBox = () => {
         </label>
         <img onClick={sendMessage} src={assets.send_button} alt="" />
       </div>
-      {/* Visually display progress */}
+
+      {/* Show image upload progress & a cancel button */}
       {uploadProgress > 0 && uploadProgress < 100 && (
         <div className="progress-container">
-          <p>Uploading Image: {Math.round(uploadProgress)}%</p>
+          <p>Uploading: {Math.round(uploadProgress)}%</p>
           <div className="progress-bar">
             <div
               className="progress-value"
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
+          <button className="cancel-upload-btn" onClick={cancelUpload}>
+            Cancel
+          </button>
         </div>
       )}
     </div>

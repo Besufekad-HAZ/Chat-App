@@ -5,10 +5,14 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
-const upload = async (file, onProgress) => {
+const upload = async (file, onProgress, onUploadTask) => {
   const storage = getStorage();
-  const storageRef = ref(storage, `images/${Date.now() + file.name}`);
+  const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
   const uploadTask = uploadBytesResumable(storageRef, file);
+
+  if (onUploadTask) {
+    onUploadTask(uploadTask); // Provide the upload task so we can cancel later
+  }
 
   return new Promise((resolve, reject) => {
     uploadTask.on(
