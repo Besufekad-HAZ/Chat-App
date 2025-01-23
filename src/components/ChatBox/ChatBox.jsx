@@ -186,7 +186,7 @@ const ChatBox = () => {
           value={input}
           type="text"
           placeholder="Type a message"
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
         />
         <input
           onChange={sendImage}
