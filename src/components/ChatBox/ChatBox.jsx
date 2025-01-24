@@ -36,6 +36,8 @@ const ChatBox = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState("");
 
+  let touchTimeout;
+
   // Send text message
   const sendMessage = async () => {
     try {
@@ -184,11 +186,9 @@ const ChatBox = () => {
     if (e.clientX && e.clientY) {
       x = e.clientX;
       y = e.clientY;
-      // console.log(e.clientX, e.clientY);
     } else if (e.touches && e.touches[0]) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
-      console.log(e.clientX, e.clientY);
     }
     setContextMenuPos({ x, y });
     setSelectedMessage(msg);
@@ -226,7 +226,6 @@ const ChatBox = () => {
   const containerRef = useRef();
   useEffect(() => {
     const handleClickOutside = (e) => {
-      // If the menu is open and click is outside the menu
       if (
         contextMenuVisible &&
         containerRef.current &&
@@ -251,6 +250,20 @@ const ChatBox = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [contextMenuVisible]);
+
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      if (e.target.classList.contains("msg")) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+    };
+  }, []);
 
   return chatUser ? (
     <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
@@ -301,9 +314,12 @@ const ChatBox = () => {
             onTouchStart={(e) => {
               // Mobile long-press or tap
               e.stopPropagation();
-              // Avoid default touch behavior
-              e.preventDefault();
-              handleMessageClick(e, msg);
+              touchTimeout = setTimeout(() => {
+                handleMessageClick(e, msg);
+              }, 200); // Adjust the delay as needed
+            }}
+            onTouchEnd={() => {
+              clearTimeout(touchTimeout);
             }}
           >
             {msg.image ? (
