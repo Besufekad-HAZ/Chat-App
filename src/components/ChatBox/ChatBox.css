@@ -11,17 +11,14 @@
   gap: 10px;
   border-bottom: 1px solid #c6c6c6;
 }
-
 .chat-user img {
   width: 25px;
   border-radius: 50%;
 }
-
 .chat-user img:first-child {
   width: 38px;
   aspect-ratio: 1/1;
 }
-
 .chat-user p {
   flex: 1;
   font-weight: 500;
@@ -35,7 +32,6 @@
 .chat-input {
   display: flex;
   align-items: center;
-  /* border-radius: 20px;  */
   gap: 12px;
   padding: 10px 15px;
   background: white;
@@ -44,20 +40,16 @@
   left: 0;
   right: 0;
 }
-
 .chat-input img {
   width: 30px;
   cursor: pointer;
 }
-
 .chat-input label {
   display: flex;
 }
-
 .chat-input label img {
   width: 22px;
 }
-
 .chat-input input {
   flex: 1;
   padding: 10px;
@@ -98,7 +90,6 @@
   padding: 5px 15px;
   cursor: pointer;
 }
-
 .r-msg {
   flex-direction: row-reverse;
   justify-content: start;
@@ -114,20 +105,19 @@
   border-radius: 8px 8px 0px 8px;
   margin-bottom: 25px;
 }
-
 .r-msg .msg {
   color: #f1f5ff;
   background-color: #030303;
   border-radius: 8px 8px 8px 0px;
   margin-left: -40px;
 }
-
 .r-msg .msg-img {
   color: #f1f5ff;
   background-color: #030303;
   border-radius: 8px 8px 8px 0px;
   margin-left: -9%;
 }
+
 .s-msg div,
 .r-msg div {
   text-align: center;
@@ -148,11 +138,9 @@
   justify-content: center;
   gap: 5px;
 }
-
 .chat-welcome img {
   width: 60px;
 }
-
 .chat-welcome p {
   font-size: 20px;
   font-weight: 500;
@@ -162,7 +150,6 @@
 .chat-user .arrow {
   display: none;
 }
-
 .delete-btn {
   background: transparent;
   border: none;
@@ -182,13 +169,11 @@
   margin: 7%;
   text-align: center;
 }
-
 .progress-container p {
   font-size: 1rem;
   font-weight: 500;
   color: #ffffff;
 }
-
 .progress-bar {
   width: 80%;
   height: 8px;
@@ -197,13 +182,11 @@
   border-radius: 4px;
   overflow: hidden;
 }
-
 .progress-value {
   height: 100%;
   background-color: #4caf50;
   transition: width 0.3s ease;
 }
-
 .cancel-upload-btn {
   background: #f44;
   border: none;
@@ -214,26 +197,20 @@
   border-radius: 4px;
 }
 
-/* Right-click menu */
+/* Use high z-index and fixed position for the context menu */
 .context-menu {
-  position: absolute; /* keeps it at the (x, y) assigned in JS */
-  top: 0;
-  left: 0;
-  transform: translate(-80vh, -23vh);
+  position: absolute; /* Overridden to fixed in JSX inline style */
   background: #fff;
   border: 1px solid #ccc;
-  z-index: 9999; /* higher level so it appears on top of messages */
-  padding: 4px 0;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
 }
-
 .context-menu-item {
   padding: 8px 16px;
   font-size: 14px;
   cursor: pointer;
 }
-
 .context-menu-item:hover {
   background: #eee;
 }
@@ -264,7 +241,6 @@
     width: 100%;
     justify-content: center;
   }
-
   .chat-user .arrow {
     display: block;
   }
