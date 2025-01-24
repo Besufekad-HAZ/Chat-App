@@ -29,12 +29,10 @@ const ChatBox = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadTaskRef, setUploadTaskRef] = useState(null);
 
-  // For context menu
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  // For edit
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState("");
 
@@ -68,7 +66,6 @@ const ChatBox = () => {
         (progress) => setUploadProgress(progress),
         (task) => setUploadTaskRef(task)
       );
-      // If upload is canceled, fileUrl won't exist
       if (fileUrl && messageId) {
         await updateDoc(doc(db, "messages", messageId), {
           message: arrayUnion({
@@ -127,12 +124,10 @@ const ChatBox = () => {
   const deleteMessage = async (msgObj) => {
     try {
       if (!messageId) return;
-      // Remove specific message object from Firestore array
       await updateDoc(doc(db, "messages", messageId), {
         message: arrayRemove(msgObj),
       });
       toast.success("Message deleted");
-      // Optionally update lastMessage references if the deleted one was the last message
     } catch (err) {
       toast.error(err.message);
       console.error(err);
@@ -156,11 +151,9 @@ const ChatBox = () => {
       return;
     }
     try {
-      // Remove old message
       await updateDoc(doc(db, "messages", messageId), {
         message: arrayRemove(selectedMessage),
       });
-      // Add updated message
       await updateDoc(doc(db, "messages", messageId), {
         message: arrayUnion({
           ...selectedMessage,
@@ -183,13 +176,22 @@ const ChatBox = () => {
     setSelectedMessage(null);
   };
 
-  // Right-click handler
-  const handleContextMenu = (e, msg) => {
-    e.preventDefault();
-    // Only show context menu for user's own messages
-    if (msg.sId !== userData.id) return;
+  // General click handler for both PC and mobile
+  const handleMessageClick = (e, msg) => {
+    if (msg.sId !== userData.id) return; // Only messages from current user
+    let x = 0,
+      y = 0;
+    if (e.clientX && e.clientY) {
+      x = e.clientX;
+      y = e.clientY;
+      // console.log(e.clientX, e.clientY);
+    } else if (e.touches && e.touches[0]) {
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
+      console.log(e.clientX, e.clientY);
+    }
+    setContextMenuPos({ x, y });
     setSelectedMessage(msg);
-    setContextMenuPos({ x: e.clientX, y: e.clientY });
     setContextMenuVisible(true);
   };
 
@@ -221,21 +223,32 @@ const ChatBox = () => {
     }
   };
 
-  // Click outside context menu to close
   const containerRef = useRef();
   useEffect(() => {
     const handleClickOutside = (e) => {
+      // If the menu is open and click is outside the menu
       if (
         contextMenuVisible &&
         containerRef.current &&
         !containerRef.current.contains(e.target)
       ) {
-        closeContextMenu();
+        // Add a small delay for mobile
+        if (
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          )
+        ) {
+          setTimeout(() => {
+            closeContextMenu();
+          }, 200);
+        } else {
+          closeContextMenu();
+        }
       }
     };
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [contextMenuVisible]);
 
@@ -258,7 +271,6 @@ const ChatBox = () => {
         />
       </div>
 
-      {/* If editing, a simple input at top or bottom to modify text */}
       {isEditing && (
         <div className="edit-message-container">
           <input
@@ -281,7 +293,18 @@ const ChatBox = () => {
           <div
             key={index}
             className={msg.sId === userData.id ? "s-msg" : "r-msg"}
-            onContextMenu={(e) => handleContextMenu(e, msg)}
+            onContextMenu={(e) => {
+              // Desktop right-click
+              e.preventDefault();
+              handleMessageClick(e, msg);
+            }}
+            onTouchStart={(e) => {
+              // Mobile long-press or tap
+              e.stopPropagation();
+              // Avoid default touch behavior
+              e.preventDefault();
+              handleMessageClick(e, msg);
+            }}
           >
             {msg.image ? (
               <img className="msg-img" src={msg.image} alt="img" />
@@ -303,7 +326,6 @@ const ChatBox = () => {
         ))}
       </div>
 
-      {/* Simple input for sending text */}
       <div className="chat-input">
         <input
           onChange={(e) => setInput(e.target.value)}
@@ -325,7 +347,6 @@ const ChatBox = () => {
         <img onClick={sendMessage} src={assets.send_button} alt="" />
       </div>
 
-      {/* Show image upload progress & a cancel button */}
       {uploadProgress > 0 && uploadProgress < 100 && (
         <div className="progress-container">
           <p>Uploading Image: {Math.round(uploadProgress)}%</p>
@@ -341,14 +362,17 @@ const ChatBox = () => {
         </div>
       )}
 
-      {/* Custom context menu (right-click) */}
       {contextMenuVisible && selectedMessage && (
         <div
           ref={containerRef}
           className="context-menu"
-          style={{ top: contextMenuPos.y, left: contextMenuPos.x }}
+          style={{
+            position: "fixed",
+            top: `${contextMenuPos.y}px`,
+            left: `${contextMenuPos.x}px`,
+            zIndex: 9999,
+          }}
         >
-          {/* If it's an image, only show Delete. If text, show both Edit & Delete */}
           {!selectedMessage.image && (
             <div
               className="context-menu-item"
